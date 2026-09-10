@@ -194,32 +194,46 @@
             >
               <!-- Name / ID -->
               <td class="py-4 px-6 font-mono font-bold text-slate-900">
-                <span class="hover:text-red-600 cursor-pointer" @click="openInspector(req.name)">
+                <router-link :to="'/logistics/' + req.name" class="hover:text-red-600 font-bold block">
                   {{ req.name }}
-                </span>
+                </router-link>
                 <span class="block text-[11px] font-normal text-slate-400 mt-0.5">
                   {{ req.material_request_type || 'Material Transfer' }}
                 </span>
               </td>
 
-              <!-- Workflow Stage Badge -->
+              <!-- Workflow Stage Badge & Current Assignee -->
               <td class="py-4 px-6">
-                <span 
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border"
-                  :class="getStageClass(req.workflow_state)"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full" :class="getStageDot(req.workflow_state)"></span>
-                  {{ req.workflow_state || req.status }}
-                </span>
+                <div class="space-y-1.5">
+                  <!-- Stage Pill -->
+                  <div class="flex items-center gap-1.5">
+                    <span 
+                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border shadow-2xs"
+                      :class="getStageClass(req.workflow_state)"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full" :class="getStageDot(req.workflow_state)"></span>
+                      {{ req.workflow_state || req.status }}
+                    </span>
+                  </div>
+
+                  <!-- Requirement 1: User / Assignee who holds the workflow state -->
+                  <div class="flex items-center gap-1.5 text-[11px] text-slate-700 bg-slate-100/90 px-2.5 py-1 rounded-lg w-fit border border-slate-200/70 shadow-2xs">
+                    <UserCheck class="w-3.5 h-3.5 text-red-600 shrink-0" />
+                    <span class="text-slate-400 font-medium">عند:</span>
+                    <span class="font-bold text-slate-900 truncate max-w-[160px]" :title="getAssignee(req).name">
+                      {{ getAssignee(req).name }}
+                    </span>
+                  </div>
+                </div>
               </td>
 
               <!-- Overdue SLA Indicator -->
               <td class="py-4 px-6">
                 <span 
                   v-if="req.isOverdue"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200 shadow-2xs"
                 >
-                  <Clock class="w-3 h-3 text-rose-600 shrink-0" />
+                  <Clock class="w-3.5 h-3.5 text-rose-600 shrink-0" />
                   متأخر ({{ req.daysOverdue }} يوم)
                 </span>
                 <span v-else class="text-xs text-slate-400 font-normal">
@@ -228,23 +242,42 @@
               </td>
 
               <!-- Transaction Date -->
-              <td class="py-4 px-6 text-slate-600">{{ req.transaction_date }}</td>
+              <td class="py-4 px-6 text-slate-600 font-mono text-xs">{{ req.transaction_date }}</td>
 
               <!-- Schedule Date -->
-              <td class="py-4 px-6 text-slate-600">{{ req.schedule_date || '—' }}</td>
+              <td class="py-4 px-6 text-slate-600 font-mono text-xs">{{ req.schedule_date || '—' }}</td>
 
-              <!-- Owner -->
-              <td class="py-4 px-6 text-slate-600 truncate max-w-[160px]">{{ req.owner }}</td>
+              <!-- Requirement 3: Requester Name and Email -->
+              <td class="py-4 px-6">
+                <div class="space-y-0.5">
+                  <div class="font-bold text-slate-900 text-xs leading-tight">
+                    {{ getUserFullName(req.owner) }}
+                  </div>
+                  <div class="text-[11px] text-slate-400 font-mono truncate max-w-[160px]" :title="req.owner">
+                    {{ req.owner }}
+                  </div>
+                </div>
+              </td>
 
-              <!-- Action button -->
+              <!-- Requirement 2: Independent Page Link & Print -->
               <td class="py-4 px-6 text-right">
-                <button 
-                  @click="openInspector(req.name)"
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-red-50 text-slate-700 hover:text-red-700 rounded-xl text-xs font-semibold border border-slate-200 hover:border-red-200 transition-all shadow-xs"
-                >
-                  <Eye class="w-3.5 h-3.5" />
-                  <span>عرض المسار</span>
-                </button>
+                <div class="flex items-center justify-end gap-1.5">
+                  <router-link 
+                    :to="'/logistics/' + req.name"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition-all shadow-xs"
+                  >
+                    <Eye class="w-3.5 h-3.5" />
+                    <span>عرض المسار</span>
+                  </router-link>
+
+                  <router-link
+                    :to="'/logistics/' + req.name"
+                    class="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+                    title="طباعة الطلب"
+                  >
+                    <Printer class="w-3.5 h-3.5" />
+                  </router-link>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -421,6 +454,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useLogisticsStore } from '@/stores/logistics'
+import { getUserFullName, getWorkflowAssignee } from '@/utils/users'
 import StatCard from '@/components/common/StatCard.vue'
 import Modal from '@/components/common/Modal.vue'
 import { 
@@ -437,10 +471,16 @@ import {
   PackageX,
   Loader2,
   Check,
-  ArrowRight
+  ArrowRight,
+  UserCheck,
+  Printer
 } from 'lucide-vue-next'
 
 const logisticsStore = useLogisticsStore()
+
+function getAssignee(req) {
+  return getWorkflowAssignee(req)
+}
 
 const showInspector = ref(false)
 const activeTab = ref('items')

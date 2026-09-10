@@ -5,6 +5,7 @@ import AppLayout from '@/components/layout/AppLayout.vue'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import LogisticsRequisitionsView from '@/views/LogisticsRequisitionsView.vue'
+import RequisitionDetailView from '@/views/RequisitionDetailView.vue'
 import ItemsView from '@/views/ItemsView.vue'
 import WarehousesView from '@/views/WarehousesView.vue'
 import StockBalanceView from '@/views/StockBalanceView.vue'
@@ -32,6 +33,12 @@ const routes = [
         name: 'logistics',
         component: LogisticsRequisitionsView,
         meta: { title: 'الطلبات اللوجستية | Logistics Requisitions', subtitle: 'إدارة وتتبع دورة اعتمادات الطلبات اللوجستية والمتأخرات' }
+      },
+      {
+        path: 'logistics/:id',
+        name: 'requisition-detail',
+        component: RequisitionDetailView,
+        meta: { title: 'تفاصيل ومسار الطلب اللوجستي', subtitle: 'تقرير ومسار اعتماد الطلبية بالكامل' }
       },
       {
         path: 'items',
