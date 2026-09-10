@@ -27,9 +27,32 @@
 
     <!-- Navigation Links -->
     <div class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-      <p v-if="!isCollapsed" class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
-        Operations & Stock
+      <p v-if="!isCollapsed" class="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+        العمليات والطلبات اللوجستية
       </p>
+
+      <!-- Logistics Requisitions (Featured) -->
+      <router-link 
+        to="/logistics"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all group"
+        :class="[
+          $route.path === '/logistics' 
+            ? 'bg-red-600 text-white shadow-sm' 
+            : 'text-slate-700 hover:bg-red-50 hover:text-red-700'
+        ]"
+      >
+        <ClipboardCheck class="w-5 h-5 shrink-0" :class="[$route.path === '/logistics' ? 'text-white' : 'text-red-600']" />
+        <span v-if="!isCollapsed" class="truncate">الطلبات اللوجستية</span>
+        
+        <span 
+          v-if="!isCollapsed && logisticsStore.overdueCount > 0"
+          class="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full"
+          :class="[$route.path === '/logistics' ? 'bg-white text-red-700' : 'bg-rose-100 text-rose-700 animate-pulse border border-rose-200']"
+          title="طلبات متأخرة > 24 ساعة"
+        >
+          {{ logisticsStore.overdueCount }} متأخر
+        </span>
+      </router-link>
 
       <router-link 
         v-for="item in navItems" 
@@ -48,12 +71,6 @@
           :class="[$route.path === item.to ? 'text-red-600' : 'text-slate-400 group-hover:text-slate-600']"
         />
         <span v-if="!isCollapsed" class="truncate">{{ item.label }}</span>
-        <span 
-          v-if="!isCollapsed && item.badge"
-          class="ml-auto px-2 py-0.5 text-[10px] font-semibold rounded-full bg-slate-100 text-slate-600"
-        >
-          {{ item.badge }}
-        </span>
       </router-link>
 
       <div class="pt-4 mt-4 border-t border-slate-100">
@@ -110,12 +127,13 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useLogisticsStore } from '@/stores/logistics'
 import { 
   LayoutDashboard, 
   Package, 
   Warehouse, 
   Layers, 
-  ClipboardList, 
+  ClipboardCheck, 
   ExternalLink,
   ChevronLeft,
   ChevronRight,
@@ -123,15 +141,15 @@ import {
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
+const logisticsStore = useLogisticsStore()
 const router = useRouter()
 const isCollapsed = ref(false)
 
 const navItems = [
-  { label: 'Overview', to: '/', icon: LayoutDashboard },
-  { label: 'Stock Items', to: '/items', icon: Package },
-  { label: 'Warehouses', to: '/warehouses', icon: Warehouse },
-  { label: 'Stock Balances', to: '/balances', icon: Layers },
-  { label: 'Material Requests', to: '/requests', icon: ClipboardList },
+  { label: 'لوحة المؤشرات العامة', to: '/', icon: LayoutDashboard },
+  { label: 'دليل الأصناف والمواد', to: '/items', icon: Package },
+  { label: 'المخازن ومراكز التوزيع', to: '/warehouses', icon: Warehouse },
+  { label: 'أرصدة المخزون الحية', to: '/balances', icon: Layers },
 ]
 
 const userInitials = computed(() => {

@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import LogisticsRequisitionsView from '@/views/LogisticsRequisitionsView.vue'
 import ItemsView from '@/views/ItemsView.vue'
 import WarehousesView from '@/views/WarehousesView.vue'
 import StockBalanceView from '@/views/StockBalanceView.vue'
@@ -24,7 +25,13 @@ const routes = [
         path: '',
         name: 'dashboard',
         component: DashboardView,
-        meta: { title: 'Operations Dashboard', subtitle: 'Yemen Red Crescent Society' }
+        meta: { title: 'لوحة التحكم والمؤشرات | Operations Dashboard', subtitle: 'جمعية الهلال الأحمر اليمني - المركز الرئيسي' }
+      },
+      {
+        path: 'logistics',
+        name: 'logistics',
+        component: LogisticsRequisitionsView,
+        meta: { title: 'الطلبات اللوجستية | Logistics Requisitions', subtitle: 'إدارة وتتبع دورة اعتمادات الطلبات اللوجستية والمتأخرات' }
       },
       {
         path: 'items',

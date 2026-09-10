@@ -130,21 +130,42 @@ export const inventoryApi = {
   },
 
   // Material Requests (Requisitions / Movement)
-  getMaterialRequests({ limit = 30 } = {}) {
+  getMaterialRequests({ limit = 50, filters = [] } = {}) {
+    const defaultFields = [
+      'name',
+      'workflow_state',
+      'material_request_type',
+      'status',
+      'transaction_date',
+      'schedule_date',
+      'company',
+      'owner',
+      'modified',
+      'creation'
+    ]
+
     const params = {
-      fields: JSON.stringify([
-        'name',
-        'material_request_type',
-        'status',
-        'transaction_date',
-        'schedule_date',
-        'company',
-        'owner'
-      ]),
+      fields: JSON.stringify(defaultFields),
       limit_page_length: limit,
-      order_by: 'transaction_date desc'
+      order_by: 'modified desc'
     }
+
+    if (filters.length > 0) {
+      params.filters = JSON.stringify(filters)
+    }
+
     return apiClient.get('/api/resource/Material Request', { params })
+  },
+
+  getRequisitionDetails(name) {
+    return apiClient.get(`/api/resource/Material Request/${encodeURIComponent(name)}`)
+  },
+
+  applyWorkflowAction(doc, action) {
+    return apiClient.post('/api/method/frappe.model.workflow.apply_workflow', {
+      doc,
+      action
+    })
   },
 
   createMaterialRequest(requestData) {
