@@ -3,16 +3,16 @@
     <!-- Header -->
     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-lg font-bold text-slate-900">Material Requests & Requisitions</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Track and request relief transfers, medical items, and stock supplies</p>
+        <h2 class="text-lg font-bold text-slate-900">طلبات الصرف والتحويل (Material Requests)</h2>
+        <p class="text-xs text-slate-500 mt-0.5">متابعة طلبات تحويل المواد الإغاثية والطبية وصرف المساعدات بين المخازن والفروع</p>
       </div>
 
       <button 
         @click="showCreateModal = true"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
       >
         <Plus class="w-4 h-4" />
-        <span>New Request</span>
+        <span>طلب مواد جديد</span>
       </button>
     </div>
 
@@ -23,19 +23,19 @@
       </div>
 
       <div v-else-if="inventoryStore.materialRequests.length === 0" class="py-16 text-center text-slate-400 text-sm">
-        No material request records found.
+        لا توجد سجلات طلبات مواد مسجلة.
       </div>
 
       <div v-else class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
+        <table class="w-full text-right text-xs">
           <thead>
-            <tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
-              <th class="py-3.5 px-6">Request ID</th>
-              <th class="py-3.5 px-6">Purpose / Type</th>
-              <th class="py-3.5 px-6">Transaction Date</th>
-              <th class="py-3.5 px-6">Required By Date</th>
-              <th class="py-3.5 px-6">Requested By</th>
-              <th class="py-3.5 px-6 text-right">Status</th>
+            <tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-bold uppercase tracking-wider">
+              <th class="py-3.5 px-6">رقم الطلب</th>
+              <th class="py-3.5 px-6">النوع / الغرض</th>
+              <th class="py-3.5 px-6">تاريخ الطلب</th>
+              <th class="py-3.5 px-6">تاريخ الاستحقاق</th>
+              <th class="py-3.5 px-6">مقدم الطلب</th>
+              <th class="py-3.5 px-6 text-left">الحالة</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -50,10 +50,10 @@
                   {{ req.material_request_type || 'Transfer' }}
                 </span>
               </td>
-              <td class="py-3.5 px-6 text-slate-600">{{ req.transaction_date }}</td>
-              <td class="py-3.5 px-6 text-slate-600">{{ req.schedule_date || '—' }}</td>
+              <td class="py-3.5 px-6 text-slate-600 font-mono">{{ req.transaction_date }}</td>
+              <td class="py-3.5 px-6 text-slate-600 font-mono">{{ req.schedule_date || '—' }}</td>
               <td class="py-3.5 px-6 text-slate-500 truncate max-w-[150px]">{{ req.owner }}</td>
-              <td class="py-3.5 px-6 text-right">
+              <td class="py-3.5 px-6 text-left">
                 <StatusBadge :status="req.status || 'Draft'" />
               </td>
             </tr>

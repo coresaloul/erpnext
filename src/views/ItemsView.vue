@@ -3,18 +3,18 @@
     <!-- Header & Controls -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-soft">
       <div>
-        <h2 class="text-lg font-bold text-slate-900">Stock Items Master</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Manage and inspect humanitarian aid and inventory items</p>
+        <h2 class="text-lg font-bold text-slate-900">دليل الأصناف والمواد (Stock Items)</h2>
+        <p class="text-xs text-slate-500 mt-0.5">إدارة وفحص المواد والمساعدات الإنسانية المخزنة في النظام</p>
       </div>
 
       <div class="flex items-center gap-3">
         <!-- New Item Trigger -->
         <button 
           @click="showCreateModal = true"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
         >
           <Plus class="w-4 h-4" />
-          <span>New Stock Item</span>
+          <span>إضافة مادة جديدة</span>
         </button>
       </div>
     </div>
@@ -24,21 +24,21 @@
       <div class="flex flex-wrap items-center gap-3 flex-1">
         <!-- Search -->
         <div class="relative min-w-[220px] max-w-sm flex-1">
-          <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input 
             v-model="inventoryStore.searchQuery"
             type="text" 
-            placeholder="Filter by name, code..."
-            class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-slate-800 placeholder-slate-400"
+            placeholder="بحث بالاسم، رمز الصنف..."
+            class="w-full pr-9 pl-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-slate-800 placeholder-slate-400"
           />
         </div>
 
         <!-- Item Group Dropdown -->
         <select 
           v-model="inventoryStore.selectedGroup"
-          class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 text-slate-700 font-medium"
+          class="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 text-slate-700 font-medium"
         >
-          <option value="">All Item Groups</option>
+          <option value="">جميع مجموعات الأصناف</option>
           <option v-for="g in inventoryStore.itemGroups" :key="g.name" :value="g.name">
             {{ g.name }}
           </option>
@@ -47,7 +47,7 @@
 
       <!-- Count -->
       <div class="text-xs text-slate-500 font-medium">
-        Showing <span class="font-bold text-slate-900">{{ inventoryStore.filteredItems.length }}</span> items
+        عرض <span class="font-bold text-slate-900">{{ inventoryStore.filteredItems.length }}</span> صنف
       </div>
     </div>
 
@@ -58,20 +58,20 @@
       </div>
 
       <div v-else-if="inventoryStore.filteredItems.length === 0" class="py-16 text-center text-slate-400 text-sm">
-        No stock items match your search.
+        لا توجد أصناف مطابقة للبحث المحدد.
       </div>
 
       <div v-else class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
+        <table class="w-full text-right text-xs">
           <thead>
-            <tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
-              <th class="py-3.5 px-6">Item Code</th>
-              <th class="py-3.5 px-6">Item Name</th>
-              <th class="py-3.5 px-6">Item Group</th>
-              <th class="py-3.5 px-6">Unit (UOM)</th>
-              <th class="py-3.5 px-6">Safety Stock</th>
-              <th class="py-3.5 px-6">Status</th>
-              <th class="py-3.5 px-6 text-right">Actions</th>
+            <tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-bold uppercase tracking-wider">
+              <th class="py-3.5 px-6">رمز المادة (Code)</th>
+              <th class="py-3.5 px-6">اسم المادة</th>
+              <th class="py-3.5 px-6">مجموعة الصنف</th>
+              <th class="py-3.5 px-6">الوحدة</th>
+              <th class="py-3.5 px-6">حد الأمان</th>
+              <th class="py-3.5 px-6">الحالة</th>
+              <th class="py-3.5 px-6 text-left">إجراءات</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -80,7 +80,7 @@
               :key="item.name"
               class="hover:bg-slate-50/70 transition-colors"
             >
-              <td class="py-3.5 px-6 font-mono text-slate-900 font-semibold">{{ item.item_code }}</td>
+              <td class="py-3.5 px-6 font-mono text-slate-900 font-bold">{{ item.item_code }}</td>
               <td class="py-3.5 px-6 font-bold text-slate-900">
                 {{ item.item_name }}
                 <p v-if="item.description && item.description !== item.item_name" class="text-[11px] font-normal text-slate-400 truncate max-w-xs mt-0.5">
@@ -93,15 +93,15 @@
                 </span>
               </td>
               <td class="py-3.5 px-6 text-slate-600">{{ item.stock_uom }}</td>
-              <td class="py-3.5 px-6 text-slate-600">{{ item.safety_stock || '—' }}</td>
+              <td class="py-3.5 px-6 text-slate-600 font-mono">{{ item.safety_stock || '—' }}</td>
               <td class="py-3.5 px-6">
                 <StatusBadge :status="item.disabled ? 'Disabled' : 'In Stock'" />
               </td>
-              <td class="py-3.5 px-6 text-right">
+              <td class="py-3.5 px-6 text-left">
                 <button 
                   @click="openItemDetails(item)"
                   class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="View Details"
+                  title="عرض التفاصيل"
                 >
                   <Eye class="w-4 h-4" />
                 </button>

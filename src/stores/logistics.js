@@ -204,8 +204,8 @@ export const useLogisticsStore = defineStore('logistics', {
       try {
         const n = new Notification(title, {
           body,
-          icon: '/src/assets/logo.svg',
-          badge: '/src/assets/logo.svg',
+          icon: '/yrcs-logo.png',
+          badge: '/yrcs-logo.png',
           tag: 'yrcs-logistics-alert',
           silent: false
         })

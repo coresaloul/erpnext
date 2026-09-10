@@ -19,6 +19,9 @@ export default {
           800: '#991b1b',
           900: '#7f1d1d',
           950: '#450a0a',
+          brand: '#C8102E',
+          'brand-dark': '#9E0C22',
+          'brand-light': '#FEECEF'
         },
         surface: {
           50: '#f8fafc',
@@ -34,7 +37,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Cairo', 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        cairo: ['Cairo', 'sans-serif'],
       },
       boxShadow: {
         'soft': '0 2px 10px -2px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.05)',

@@ -146,12 +146,12 @@
     <!-- Search and Controls Bar -->
     <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-soft flex flex-wrap items-center justify-between gap-4">
       <div class="relative w-full sm:w-80">
-        <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <Search class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input 
           v-model="logisticsStore.searchQuery"
           type="text" 
           placeholder="بحث برقم الطلب، الحالة، أو المسؤول..."
-          class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-slate-800 placeholder-slate-400"
+          class="w-full pr-9 pl-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-slate-800 placeholder-slate-400"
         />
       </div>
 
@@ -187,7 +187,7 @@
       </div>
 
       <div v-else class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
+        <table class="w-full text-right text-xs">
           <thead>
             <tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
               <th class="py-3.5 px-6">رقم الطلب (ID)</th>
@@ -196,7 +196,7 @@
               <th class="py-3.5 px-6">تاريخ الطلب</th>
               <th class="py-3.5 px-6">تاريخ الاستحقاق</th>
               <th class="py-3.5 px-6">مقدم الطلب (Requester)</th>
-              <th class="py-3.5 px-6 text-right">التفاصيل والمسار</th>
+              <th class="py-3.5 px-6 text-left">التفاصيل والمسار</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -274,11 +274,11 @@
               </td>
 
               <!-- Requirement 2: Independent Page Link & Print -->
-              <td class="py-4 px-6 text-right">
-                <div class="flex items-center justify-end gap-1.5">
+              <td class="py-4 px-6 text-left">
+                <div class="flex items-center justify-start gap-1.5">
                   <router-link 
                     :to="'/logistics/' + req.name"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition-all shadow-xs"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
                   >
                     <Eye class="w-3.5 h-3.5" />
                     <span>عرض المسار</span>
@@ -403,14 +403,14 @@
             لا توجد سجلات موافقة مسجلة بعد لهذا الطلب.
           </div>
 
-          <div v-else class="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
+          <div v-else class="relative pr-6 space-y-6 before:absolute before:right-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
             <div 
               v-for="(log, idx) in currentDetails.custom_workflow_audit_log" 
               :key="log.name || idx"
               class="relative flex items-start gap-4 text-xs"
             >
               <!-- Timeline Dot -->
-              <div class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center shrink-0 shadow-xs">
+              <div class="absolute -right-6 top-1 w-5 h-5 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center shrink-0 shadow-xs">
                 <Check class="w-3 h-3 text-emerald-600" />
               </div>
 
@@ -431,11 +431,11 @@
                   <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-200/70 text-slate-700">
                     من: {{ log.from_state }}
                   </span>
-                  <ArrowRight class="w-3 h-3 text-slate-400" />
+                  <ArrowLeft class="w-3 h-3 text-slate-400" />
                   <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
                     إلى: {{ log.to_state }}
                   </span>
-                  <span class="ml-auto font-semibold text-emerald-700">
+                  <span class="mr-auto font-semibold text-emerald-700">
                     الإجراء: {{ log.workflow_action }}
                   </span>
                 </div>
@@ -486,6 +486,7 @@ import {
   Loader2,
   Check,
   ArrowRight,
+  ArrowLeft,
   UserCheck,
   Printer
 } from 'lucide-vue-next'

@@ -5,13 +5,23 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    direction: rtl;
+    text-align: right;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-800 font-sans antialiased min-h-screen;
+    @apply bg-slate-50 text-slate-800 antialiased min-h-screen;
+    font-family: 'Cairo', 'Inter', system-ui, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  [dir="rtl"] {
-    font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+  /* Keep codes, dates, and numbers readable in LTR */
+  .font-mono, 
+  input[type="number"], 
+  .number-ltr {
+    direction: ltr;
+    unicode-bidi: embed;
   }
 }
 

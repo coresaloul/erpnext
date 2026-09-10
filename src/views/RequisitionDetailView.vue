@@ -5,9 +5,9 @@
       <div class="flex items-center gap-3">
         <router-link 
           to="/logistics"
-          class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs font-semibold"
+          class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs font-bold"
         >
-          <ArrowLeft class="w-4 h-4" />
+          <ArrowRight class="w-4 h-4" />
           <span>العودة للطلبات اللوجستية</span>
         </router-link>
 
@@ -15,7 +15,7 @@
 
         <div>
           <span class="font-mono text-sm font-bold text-slate-900">{{ id }}</span>
-          <span class="text-xs text-slate-400 mr-2">| تفاصيل ومسار الطلب</span>
+          <span class="text-xs text-slate-400 mr-2">| تفاصيل ومسار دورة العمل والطباعة الرسمية</span>
         </div>
       </div>
 
@@ -23,7 +23,7 @@
         <!-- Print Button -->
         <button 
           @click="triggerPrint"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-all"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
         >
           <Printer class="w-4 h-4" />
           <span>طباعة الطلب بالكامل</span>
@@ -34,7 +34,7 @@
           :href="`http://13.140.163.199/app/material-request/${id}`"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors"
+          class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
         >
           <ExternalLink class="w-3.5 h-3.5" />
           <span>فتح في ERPNext</span>
@@ -62,23 +62,23 @@
     <div v-else-if="doc" class="printable-document bg-white rounded-2xl border border-slate-200/80 shadow-soft p-8 sm:p-10 space-y-8">
       <!-- Official Header with Logo & Typography -->
       <div class="flex flex-col sm:flex-row items-center justify-between pb-6 border-b-2 border-slate-900/80 gap-4">
-        <!-- Right: YRCS Arabic & English Title -->
+        <!-- Right: YRCS Arabic & English Title & Official Emblem -->
         <div class="flex items-center gap-4 text-right">
-          <div class="w-16 h-16 rounded-2xl bg-white border border-red-100 p-2 flex items-center justify-center shrink-0 shadow-xs">
-            <img src="@/assets/logo.svg" alt="YRCS" class="w-full h-full object-contain" />
+          <div class="w-18 h-18 rounded-full bg-white border-2 border-red-100 p-0.5 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+            <img src="@/assets/yrcs-logo.png" alt="YRCS" class="w-full h-full object-contain" />
           </div>
           <div>
             <h1 class="text-lg font-extrabold text-slate-900 tracking-tight leading-tight">جمعية الهلال الأحمر اليمني</h1>
-            <p class="text-xs font-bold text-red-600">Yemen Red Crescent Society</p>
-            <p class="text-[11px] text-slate-500 mt-0.5">إدارة سلاسل الإمداد والمشتريات والخدمات اللوجستية</p>
+            <p class="text-xs font-bold text-red-600 font-mono tracking-wide">YEMEN RED CRESCENT SOCIETY</p>
+            <p class="text-[11px] text-slate-500 mt-0.5 font-medium">إدارة سلاسل الإمداد والمشتريات والخدمات اللوجستية</p>
           </div>
         </div>
 
-        <!-- Center: Title -->
-        <div class="text-center px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
+        <!-- Center: Title & ID -->
+        <div class="text-center px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs">
           <h2 class="text-sm font-extrabold text-slate-900">طلب مواد / طلبية لوجستية</h2>
           <p class="text-[11px] text-slate-500 font-mono">Logistics Requisition</p>
-          <p class="font-mono text-xs font-bold text-red-700 mt-0.5">{{ doc.name }}</p>
+          <p class="font-mono text-xs font-bold text-red-700 mt-1">{{ doc.name }}</p>
         </div>
 
         <!-- Left: Dates & Status -->
@@ -146,7 +146,7 @@
         </div>
 
         <div class="rounded-xl border border-slate-200 overflow-hidden">
-          <table class="w-full text-left text-xs">
+          <table class="w-full text-right text-xs">
             <thead class="bg-slate-100/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
               <tr>
                 <th class="py-3 px-4 w-10 text-center">#</th>
@@ -154,8 +154,8 @@
                 <th class="py-3 px-4">اسم المادة والمواصفات</th>
                 <th class="py-3 px-4 text-center">الكمية</th>
                 <th class="py-3 px-4 text-center">الوحدة</th>
-                <th class="py-3 px-4 text-right">السعر التقديري</th>
-                <th class="py-3 px-4 text-right">الإجمالي</th>
+                <th class="py-3 px-4 text-left">السعر التقديري</th>
+                <th class="py-3 px-4 text-left">الإجمالي</th>
                 <th class="py-3 px-4">المخزن المستهدف</th>
               </tr>
             </thead>
@@ -169,10 +169,10 @@
                 </td>
                 <td class="py-3 px-4 text-center font-bold text-slate-900 font-mono">{{ it.qty }}</td>
                 <td class="py-3 px-4 text-center text-slate-600">{{ it.uom || it.stock_uom }}</td>
-                <td class="py-3 px-4 text-right font-mono text-slate-700">
+                <td class="py-3 px-4 text-left font-mono text-slate-700">
                   {{ it.custom_rate_in_pr_currency || it.rate || '0.00' }}
                 </td>
-                <td class="py-3 px-4 text-right font-bold text-slate-900 font-mono">
+                <td class="py-3 px-4 text-left font-bold text-slate-900 font-mono">
                   {{ (it.custom_amount_in_pr_currency || it.amount || 0).toLocaleString() }}
                 </td>
                 <td class="py-3 px-4 text-slate-600 text-[11px]">{{ it.warehouse || 'المخزن الرئيسي - YRCS' }}</td>
@@ -181,8 +181,8 @@
             <!-- Table Footer -->
             <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold text-xs">
               <tr>
-                <td colspan="6" class="py-3 px-4 text-right text-slate-600">المجموع الكلي التقديري:</td>
-                <td class="py-3 px-4 text-right text-red-700 font-mono text-sm">{{ totalCostFormatted }} {{ doc.custom_pr_currency || 'USD' }}</td>
+                <td colspan="6" class="py-3 px-4 text-left text-slate-600">المجموع الكلي التقديري:</td>
+                <td class="py-3 px-4 text-left text-red-700 font-mono text-sm">{{ totalCostFormatted }} {{ doc.custom_pr_currency || 'USD' }}</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -220,10 +220,10 @@
               </div>
             </div>
 
-            <!-- Stage Transition -->
+            <!-- Stage Transition (Right to Left in Arabic) -->
             <div class="flex items-center gap-2 font-medium">
               <span class="px-2.5 py-1 rounded-md bg-slate-200/80 text-slate-700 text-[11px]">{{ log.from_state }}</span>
-              <ArrowRight class="w-3.5 h-3.5 text-slate-400" />
+              <ArrowLeft class="w-3.5 h-3.5 text-slate-400" />
               <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">{{ log.to_state }}</span>
             </div>
 

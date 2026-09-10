@@ -1,25 +1,25 @@
 <template>
   <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
     <!-- Subtle Background Accents -->
-    <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-red-100/50 blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-slate-200/50 blur-3xl pointer-events-none"></div>
+    <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-red-100/50 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-slate-200/50 blur-3xl pointer-events-none"></div>
 
-    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-      <!-- Brand Emblem -->
+    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
+      <!-- Official Brand Emblem -->
       <div class="flex justify-center">
-        <div class="w-16 h-16 rounded-2xl bg-white p-2.5 shadow-card border border-red-100 flex items-center justify-center">
-          <img src="@/assets/logo.svg" alt="Yemen Red Crescent Society" class="w-full h-full object-contain" />
+        <div class="w-20 h-20 rounded-full bg-white p-1 shadow-card border-2 border-red-100 flex items-center justify-center overflow-hidden">
+          <img src="@/assets/yrcs-logo.png" alt="جمعية الهلال الأحمر اليمني" class="w-full h-full object-contain" />
         </div>
       </div>
 
-      <h2 class="mt-4 text-center text-2xl font-bold tracking-tight text-slate-900">
-        Yemen Red Crescent Society
-      </h2>
-      <p class="text-center text-sm font-medium text-red-600 mt-0.5">
+      <h2 class="mt-4 text-center text-2xl font-extrabold tracking-tight text-slate-900">
         جمعية الهلال الأحمر اليمني
+      </h2>
+      <p class="text-center text-xs font-bold text-red-600 mt-0.5 tracking-wide">
+        YEMEN RED CRESCENT SOCIETY
       </p>
-      <p class="mt-1 text-center text-xs text-slate-500">
-        Operations & Inventory Management System
+      <p class="mt-1 text-center text-xs text-slate-500 font-medium">
+        بوابة إدارة سلاسل الإمداد والمخازن والطلبات اللوجستية
       </p>
     </div>
 
@@ -29,7 +29,7 @@
           <!-- Error Alert -->
           <div 
             v-if="errorMessage" 
-            class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs font-medium text-red-800 flex items-start gap-2.5"
+            class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs font-semibold text-red-800 flex items-start gap-2.5"
           >
             <AlertCircle class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
             <span>{{ errorMessage }}</span>
@@ -37,8 +37,8 @@
 
           <!-- Email / Username -->
           <div>
-            <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-              Email / Username
+            <label for="email" class="block text-xs font-bold text-slate-700">
+              البريد الإلكتروني أو اسم المستخدم
             </label>
             <div class="mt-1.5 relative">
               <input 
@@ -47,7 +47,8 @@
                 type="text" 
                 required 
                 placeholder="user@yemenredcrescent.org"
-                class="block w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 focus:bg-white text-slate-900 placeholder-slate-400 transition-all"
+                class="block w-full px-3.5 py-2.5 text-xs bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 focus:bg-white text-slate-900 placeholder-slate-400 transition-all font-mono text-left"
+                dir="ltr"
               />
             </div>
           </div>
@@ -55,8 +56,8 @@
           <!-- Password -->
           <div>
             <div class="flex items-center justify-between">
-              <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-                Password
+              <label for="password" class="block text-xs font-bold text-slate-700">
+                كلمة المرور
               </label>
             </div>
             <div class="mt-1.5 relative">
@@ -66,12 +67,14 @@
                 :type="showPassword ? 'text' : 'password'" 
                 required 
                 placeholder="••••••••"
-                class="block w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 focus:bg-white text-slate-900 placeholder-slate-400 transition-all pr-10"
+                class="block w-full pr-3.5 pl-10 py-2.5 text-xs bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 focus:bg-white text-slate-900 placeholder-slate-400 transition-all font-mono"
+                dir="ltr"
               />
               <button 
                 type="button" 
                 @click="showPassword = !showPassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                title="إظهار / إخفاء كلمة المرور"
               >
                 <Eye v-if="!showPassword" class="w-4 h-4" />
                 <EyeOff v-else class="w-4 h-4" />
@@ -84,10 +87,10 @@
             <button 
               type="submit" 
               :disabled="loading"
-              class="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-xl shadow-xs text-xs font-bold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Loader2 v-if="loading" class="w-4 h-4 animate-spin" />
-              <span>{{ loading ? 'Authenticating...' : 'Sign in to Hub' }}</span>
+              <span>{{ loading ? 'جاري التحقق وتسجيل الدخول...' : 'تسجيل الدخول إلى النظام' }}</span>
             </button>
           </div>
         </form>
@@ -95,10 +98,10 @@
         <!-- Server Status Card -->
         <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Target: 13.140.163.199</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-mono text-[11px]">13.140.163.199</span>
           </div>
-          <span class="font-medium text-slate-400">ERPNext v15</span>
+          <span class="font-semibold text-slate-400">نظام ERPNext v15</span>
         </div>
       </div>
     </div>
