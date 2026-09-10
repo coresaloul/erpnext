@@ -167,6 +167,20 @@
         <span class="text-xs font-medium">جاري تحميل وتحديث الطلبات اللوجستية...</span>
       </div>
 
+      <!-- Error State -->
+      <div v-else-if="logisticsStore.error" class="py-16 text-center text-rose-600 space-y-3 px-4">
+        <AlertTriangle class="w-10 h-10 mx-auto text-rose-500" />
+        <h3 class="text-sm font-bold text-slate-900">تعذر تحميل الطلبات اللوجستية</h3>
+        <p class="text-xs text-slate-500 max-w-md mx-auto">{{ logisticsStore.error }}</p>
+        <button 
+          @click="loadData" 
+          class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+        >
+          <RefreshCw class="w-3.5 h-3.5" />
+          <span>إعادة المحاولة</span>
+        </button>
+      </div>
+
       <div v-else-if="logisticsStore.filteredRequisitions.length === 0" class="py-20 text-center text-slate-400 text-sm">
         <PackageX class="w-10 h-10 mx-auto text-slate-300 mb-2" />
         لا توجد طلبات مطابقة للفلتر المحدد.

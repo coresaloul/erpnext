@@ -143,12 +143,9 @@ export const inventoryApi = {
       'modified',
       'creation',
       '_assign',
-      'custom_budget_holder_user',
-      'custom_branch',
-      'custom_cost_center',
-      'custom_priority',
-      'custom_pr_currency',
-      'custom_total_cost_in_pr_currency'
+      'title',
+      'per_ordered',
+      'per_received'
     ]
 
     const params = {

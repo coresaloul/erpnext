@@ -32,7 +32,7 @@ const props = defineProps({
   title: { type: String, required: true },
   value: { type: [Number, String], required: true },
   subtitle: { type: String, default: '' },
-  icon: { type: Object, required: true },
+  icon: { type: [Object, Function], required: true },
   variant: { type: String, default: 'red' }, // red, blue, emerald, amber, slate
   badge: { type: String, default: '' },
   badgeVariant: { type: String, default: 'neutral' }
