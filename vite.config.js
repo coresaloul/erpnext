@@ -14,17 +14,17 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8765',
+        target: 'http://13.140.163.199',
         changeOrigin: true,
         secure: false,
       },
       '/files': {
-        target: 'http://127.0.0.1:8765',
+        target: 'http://13.140.163.199',
         changeOrigin: true,
         secure: false,
       },
       '/assets': {
-        target: 'http://127.0.0.1:8765',
+        target: 'http://13.140.163.199',
         changeOrigin: true,
         secure: false,
       }
