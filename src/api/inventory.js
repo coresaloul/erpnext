@@ -13,6 +13,10 @@ export const authApi = {
   getUserDetails(email) {
     return apiClient.get(`/api/resource/User/${encodeURIComponent(email)}`)
   },
+  getEmployees(params = {}) {
+    const fields = encodeURIComponent(JSON.stringify(['name', 'employee_name', 'user_id', 'reports_to', 'department', 'designation']))
+    return apiClient.get(`/api/resource/Employee?fields=${fields}&limit_page_length=150`)
+  },
   getBootInfo() {
     return apiClient.get('/api/method/frappe.boot.get_bootinfo')
   }

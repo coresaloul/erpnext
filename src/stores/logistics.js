@@ -1,15 +1,18 @@
 import { defineStore } from 'pinia'
 import { inventoryApi } from '@/api/inventory'
+import { useAuthStore } from '@/stores/auth'
+import { canAccessRequisition, hasFullAccess, getRequisitionRelation } from '@/utils/permissions'
 
 export const useLogisticsStore = defineStore('logistics', {
   state: () => ({
-    requisitions: [],
+    rawRequisitions: [],
     selectedRequisition: null,
     loading: false,
     detailsLoading: false,
     error: null,
     selectedStage: '',
     filterOverdueOnly: false,
+    filterScope: 'all', // 'all' | 'my_own' | 'subordinates' | 'pending_my_action'
     searchQuery: '',
     notificationsEnabled: localStorage.getItem('yrcs_notifications_enabled') === 'true',
     lastNotificationTimestamp: 0,
@@ -29,12 +32,66 @@ export const useLogisticsStore = defineStore('logistics', {
       { id: 'Cancel', label: 'ملغي (Cancel)', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200' },
     ],
 
-    // Overdue check (> 24 hours / > 1 day in non-terminal state)
-    overdueList: (state) => {
+    // Scope-filtered list of requisitions based on user permissions & hierarchy
+    scopedRequisitions: (state) => {
+      const authStore = useAuthStore()
+      if (hasFullAccess(authStore)) {
+        return state.rawRequisitions
+      }
+      return state.rawRequisitions.filter(req => canAccessRequisition(req, authStore))
+    },
+
+    // Standard getter exposing accessible requisitions
+    requisitions() {
+      return this.scopedRequisitions
+    },
+
+    // Counts for scoped sub-filters
+    myOwnCount() {
+      const authStore = useAuthStore()
+      const user = (authStore.user || '').toLowerCase()
+      return this.scopedRequisitions.filter(r => (r.owner || '').toLowerCase() === user).length
+    },
+
+    subordinatesCount() {
+      const authStore = useAuthStore()
+      const subEmails = (authStore.subordinateEmails || []).map(e => e.toLowerCase())
+      return this.scopedRequisitions.filter(r => subEmails.includes((r.owner || '').toLowerCase())).length
+    },
+
+    pendingMyActionCount() {
+      const authStore = useAuthStore()
+      const user = (authStore.user || '').toLowerCase()
+      const subEmails = (authStore.subordinateEmails || []).map(e => e.toLowerCase())
+      const roles = authStore.roles || []
+
+      return this.scopedRequisitions.filter(r => {
+        const state = r.workflow_state || r.status || ''
+        const reqOwner = (r.owner || '').toLowerCase()
+        const budgetHolder = (r.custom_budget_holder_user || '').toLowerCase()
+
+        if (state === 'Pending at Budget.H' && (roles.includes('Budget Holder') || budgetHolder === user)) {
+          return true
+        }
+        if (state === 'Pending at Finance' && (roles.includes('Accounts Manager') || roles.includes('Accounts User'))) {
+          return true
+        }
+        if (state === 'Pending at CEO' && authStore.isCEO) {
+          return true
+        }
+        if (state === 'Pending at Requester' && (reqOwner === user || subEmails.includes(reqOwner))) {
+          return true
+        }
+        return false
+      }).length
+    },
+
+    // Overdue check (> 24 hours / > 1 day in non-terminal state) on scoped list
+    overdueList() {
       const now = new Date().getTime()
       const oneDayMs = 24 * 60 * 60 * 1000
 
-      return state.requisitions.filter(req => {
+      return this.scopedRequisitions.filter(req => {
         const stateName = req.workflow_state || req.status
         if (['Closed', 'Cancel', 'Received'].includes(stateName)) {
           return false
@@ -44,38 +101,69 @@ export const useLogisticsStore = defineStore('logistics', {
       })
     },
 
-    overdueCount: (state) => {
-      return state.overdueList.length
+    overdueCount() {
+      return this.overdueList.length
     },
 
-    stageCounts: (state) => {
+    stageCounts() {
       const counts = {}
-      state.requisitions.forEach(req => {
+      this.scopedRequisitions.forEach(req => {
         const s = req.workflow_state || 'Unknown'
         counts[s] = (counts[s] || 0) + 1
       })
       return counts
     },
 
-    pendingApprovalsCount: (state) => {
-      return state.requisitions.filter(req => {
+    pendingApprovalsCount() {
+      return this.scopedRequisitions.filter(req => {
         const s = req.workflow_state || ''
         return s.startsWith('Pending')
       }).length
     },
 
-    receivedCount: (state) => {
-      return state.requisitions.filter(req => {
+    receivedCount() {
+      return this.scopedRequisitions.filter(req => {
         return (req.workflow_state === 'Received' || req.workflow_state === 'Closed')
       }).length
     },
 
-    filteredRequisitions: (state) => {
-      let list = state.requisitions
+    filteredRequisitions(state) {
+      let list = this.scopedRequisitions
+      const authStore = useAuthStore()
+      const user = (authStore.user || '').toLowerCase()
+      const subEmails = (authStore.subordinateEmails || []).map(e => e.toLowerCase())
+      const roles = authStore.roles || []
+
+      // Scope filter (for employees with scoped view)
+      if (state.filterScope === 'my_own') {
+        list = list.filter(r => (r.owner || '').toLowerCase() === user)
+      } else if (state.filterScope === 'subordinates') {
+        list = list.filter(r => subEmails.includes((r.owner || '').toLowerCase()))
+      } else if (state.filterScope === 'pending_my_action') {
+        list = list.filter(r => {
+          const s = r.workflow_state || r.status || ''
+          const reqOwner = (r.owner || '').toLowerCase()
+          const budgetHolder = (r.custom_budget_holder_user || '').toLowerCase()
+
+          if (s === 'Pending at Budget.H' && (roles.includes('Budget Holder') || budgetHolder === user)) {
+            return true
+          }
+          if (s === 'Pending at Finance' && (roles.includes('Accounts Manager') || roles.includes('Accounts User'))) {
+            return true
+          }
+          if (s === 'Pending at CEO' && authStore.isCEO) {
+            return true
+          }
+          if (s === 'Pending at Requester' && (reqOwner === user || subEmails.includes(reqOwner))) {
+            return true
+          }
+          return false
+        })
+      }
 
       // Overdue filter
       if (state.filterOverdueOnly) {
-        const overdueNames = new Set(state.overdueList.map(r => r.name))
+        const overdueNames = new Set(this.overdueList.map(r => r.name))
         list = list.filter(r => overdueNames.has(r.name))
       }
 
@@ -111,7 +199,7 @@ export const useLogisticsStore = defineStore('logistics', {
         const now = new Date().getTime()
         const oneDayMs = 24 * 60 * 60 * 1000
 
-        this.requisitions = list.map(req => {
+        this.rawRequisitions = list.map(req => {
           const actionTime = new Date(req.modified || req.creation).getTime()
           const diffMs = now - actionTime
           const isOverdue = diffMs >= oneDayMs && !['Closed', 'Cancel', 'Received'].includes(req.workflow_state || req.status)

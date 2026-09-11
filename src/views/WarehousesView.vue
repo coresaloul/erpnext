@@ -14,6 +14,22 @@
       </div>
     </div>
 
+    <!-- Scoped User Info Notice -->
+    <div v-if="!authStore.hasFullAccess" class="p-4 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-700">
+          <Info class="w-4 h-4" />
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-amber-900">إشعار: إدارة ونقل المخازن محصورة بإدارة اللوجستيك وسلاسل الإمداد</h4>
+          <p class="text-[11px] text-amber-700 mt-0.5">يمكنك استعراض المخازن لأغراض الاستعلام. لطلب مواد أو أصناف لمشروعك، يرجى التوجه إلى الطلبات اللوجستية.</p>
+        </div>
+      </div>
+      <router-link to="/logistics" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors shadow-2xs">
+        الطلبات اللوجستية
+      </router-link>
+    </div>
+
     <!-- Facilities Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       <div 
@@ -59,9 +75,11 @@
 
 <script setup>
 import { useInventoryStore } from '@/stores/inventory'
-import { Building2, ArrowLeft } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
+import { Building2, ArrowLeft, Info } from 'lucide-vue-next'
 
 const inventoryStore = useInventoryStore()
+const authStore = useAuthStore()
 
 function getWarehouseItemCount(warehouseName) {
   return inventoryStore.stockBalances.filter(b => b.warehouse === warehouseName).length

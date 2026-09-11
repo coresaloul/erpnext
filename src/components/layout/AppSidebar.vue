@@ -28,7 +28,7 @@
     <!-- Navigation Links -->
     <div class="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
       <p v-if="!uiStore.isSidebarCollapsed" class="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-        العمليات والطلبات اللوجستية
+        {{ authStore.hasFullAccess ? 'إدارة سلاسل الإمداد والمخازن' : 'الطلبات والخدمات اللوجستية' }}
       </p>
 
       <!-- Logistics Requisitions (Featured) -->
@@ -42,7 +42,9 @@
         ]"
       >
         <ClipboardCheck class="w-5 h-5 shrink-0" :class="[$route.path.startsWith('/logistics') ? 'text-white' : 'text-red-600']" />
-        <span v-if="!uiStore.isSidebarCollapsed" class="truncate">الطلبات اللوجستية</span>
+        <span v-if="!uiStore.isSidebarCollapsed" class="truncate">
+          {{ authStore.hasFullAccess ? 'الطلبات اللوجستية' : 'طلباتي والطلبات اللوجستية' }}
+        </span>
         
         <span 
           v-if="!uiStore.isSidebarCollapsed && logisticsStore.overdueCount > 0"
@@ -107,7 +109,14 @@
         
         <div v-if="!uiStore.isSidebarCollapsed" class="flex-1 min-w-0 overflow-hidden text-right">
           <p class="text-xs font-bold text-slate-900 truncate leading-tight">{{ authStore.fullName || 'المستخدم' }}</p>
-          <p class="text-[11px] text-slate-400 truncate mt-0.5 font-mono">{{ authStore.user || '' }}</p>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span 
+              class="text-[10px] font-bold px-1.5 py-0.2 rounded"
+              :class="userRoleBadge.badgeClass"
+            >
+              {{ userRoleBadge.label }}
+            </span>
+          </div>
         </div>
 
         <button 
@@ -139,7 +148,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Send
+  Send,
+  Lock
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -147,13 +157,37 @@ const logisticsStore = useLogisticsStore()
 const uiStore = useUiStore()
 const router = useRouter()
 
-const navItems = [
-  { label: 'لوحة المؤشرات العامة', to: '/', icon: LayoutDashboard },
-  { label: 'دليل الأصناف والمواد', to: '/items', icon: Package },
-  { label: 'المخازن ومراكز التوزيع', to: '/warehouses', icon: Warehouse },
-  { label: 'أرصدة المخزون الحية', to: '/balances', icon: Layers },
-  { label: 'طلبات الصرف والتحويل', to: '/requests', icon: Send },
-]
+const navItems = computed(() => {
+  if (authStore.hasFullAccess) {
+    return [
+      { label: 'لوحة المؤشرات العامة', to: '/', icon: LayoutDashboard },
+      { label: 'دليل الأصناف والمواد', to: '/items', icon: Package },
+      { label: 'المخازن ومراكز التوزيع', to: '/warehouses', icon: Warehouse },
+      { label: 'أرصدة المخزون الحية', to: '/balances', icon: Layers },
+      { label: 'طلبات الصرف والتحويل', to: '/requests', icon: Send },
+    ]
+  } else {
+    return [
+      { label: 'دليل الأصناف لطلب المواد', to: '/items', icon: Package },
+      { label: 'المخازن ومراكز التوزيع', to: '/warehouses', icon: Warehouse },
+      { label: 'طلبات الصرف الخاصة بي', to: '/requests', icon: Send },
+    ]
+  }
+})
+
+const userRoleBadge = computed(() => {
+  if (authStore.isCEO) {
+    return { label: 'المدير التنفيذي (CEO)', badgeClass: 'bg-purple-100 text-purple-800' }
+  }
+  if (authStore.isLogistics) {
+    return { label: 'إدارة اللوجستيك', badgeClass: 'bg-emerald-100 text-emerald-800' }
+  }
+  const dept = authStore.currentEmployee?.department || ''
+  return { 
+    label: dept ? dept.replace(' - YRCS', '') : 'موظف الجمعية', 
+    badgeClass: 'bg-blue-100 text-blue-800' 
+  }
+})
 
 const userInitials = computed(() => {
   const name = authStore.fullName || authStore.user || 'Y'

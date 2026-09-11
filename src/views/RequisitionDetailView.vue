@@ -58,6 +58,18 @@
       </router-link>
     </div>
 
+    <!-- Access Denied State -->
+    <div v-else-if="isAccessDenied" class="p-10 text-center bg-white rounded-2xl border border-rose-200 shadow-soft space-y-3">
+      <ShieldAlert class="w-12 h-12 text-rose-500 mx-auto" />
+      <h3 class="text-base font-bold text-slate-900">غير مصرح بالاطلاع على هذا الطلب</h3>
+      <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+        هذا الطلب خارج نطاق صلاحيات حسابك. بصفتك موظفاً، تقتصر صلاحية الاطلاع على طلباتك الشخصية، أو طلبات موظفي إدارتك، أو الطلبات المكلف باعتمادها ضمن دورة العمل.
+      </p>
+      <router-link to="/logistics" class="inline-block mt-3 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors">
+        العودة إلى قائمة طلباتي
+      </router-link>
+    </div>
+
     <!-- Printable Official Document Card -->
     <div v-else-if="doc" class="printable-document bg-white rounded-2xl border border-slate-200/80 shadow-soft p-8 sm:p-10 space-y-8">
       <!-- Official Header with Logo & Typography -->
@@ -295,7 +307,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { inventoryApi } from '@/api/inventory'
+import { useAuthStore } from '@/stores/auth'
 import { getUserFullName, getWorkflowAssignee } from '@/utils/users'
+import { canAccessRequisition } from '@/utils/permissions'
 import { 
   ArrowLeft, 
   Printer, 
@@ -303,27 +317,40 @@ import {
   AlertCircle, 
   Check, 
   Clock, 
-  ArrowRight,
-  Loader2 
+  ArrowRight, 
+  Loader2,
+  ShieldAlert
 } from 'lucide-vue-next'
 
 const route = useRoute()
+const authStore = useAuthStore()
 const id = computed(() => route.params.id)
 
 const doc = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const isAccessDenied = ref(false)
 
 onMounted(async () => {
+  if (authStore.user && (!authStore.roles || authStore.roles.length === 0)) {
+    await authStore.fetchProfile(authStore.user)
+  }
   await fetchDoc()
 })
 
 async function fetchDoc() {
   loading.value = true
   error.value = null
+  isAccessDenied.value = false
   try {
     const res = await inventoryApi.getRequisitionDetails(id.value)
-    doc.value = res.data?.data || null
+    const fetchedDoc = res.data?.data || null
+    if (fetchedDoc && !canAccessRequisition(fetchedDoc, authStore)) {
+      isAccessDenied.value = true
+      doc.value = null
+    } else {
+      doc.value = fetchedDoc
+    }
   } catch (err) {
     console.error('Failed to load requisition:', err)
     error.value = err.friendlyMessage || 'لم يتم العثور على هذا الطلب أو ليس لديك صلاحية الوصول إليه.'

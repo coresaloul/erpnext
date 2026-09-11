@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/inventory'
+import { isExecutiveDirector, isLogisticsTeam, hasFullAccess } from '@/utils/permissions'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -10,7 +11,18 @@ export const useAuthStore = defineStore('auth', {
     error: null,
     company: 'Yemen Red Crescent Society',
     roles: [],
+    currentEmployee: null,
+    subordinates: [],
+    subordinateEmails: [],
   }),
+
+  getters: {
+    isCEO: (state) => isExecutiveDirector(state),
+    isLogistics: (state) => isLogisticsTeam(state),
+    hasFullAccess: (state) => hasFullAccess(state),
+    isScopedStaff: (state) => !hasFullAccess(state),
+    hasRole: (state) => (role) => (state.roles || []).includes(role),
+  },
 
   actions: {
     async login(usr, pwd) {
@@ -27,8 +39,8 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('yrcs_user', usr)
         localStorage.setItem('yrcs_full_name', fullName)
 
-        // Fetch detailed profile in background
-        this.fetchProfile(usr)
+        // Fetch detailed profile and employee hierarchy in background
+        await this.fetchProfile(usr)
         return true
       } catch (err) {
         this.error = err.friendlyMessage || 'Invalid email or password'
@@ -69,6 +81,26 @@ export const useAuthStore = defineStore('auth', {
       } catch (e) {
         // non-critical
       }
+
+      // Fetch employee hierarchy
+      try {
+        const empRes = await authApi.getEmployees()
+        const allEmps = empRes.data?.data || []
+        const myEmp = allEmps.find(e => e.user_id?.toLowerCase() === email.toLowerCase())
+        this.currentEmployee = myEmp || null
+        
+        if (myEmp) {
+          // Direct subordinates: employees whose reports_to is this employee
+          const subs = allEmps.filter(e => e.reports_to === myEmp.name)
+          this.subordinates = subs
+          this.subordinateEmails = subs.map(e => e.user_id).filter(Boolean)
+        } else {
+          this.subordinates = []
+          this.subordinateEmails = []
+        }
+      } catch (err) {
+        console.warn('Could not fetch employee hierarchy:', err)
+      }
     },
 
     async logout() {
@@ -86,6 +118,9 @@ export const useAuthStore = defineStore('auth', {
       this.fullName = ''
       this.isAuthenticated = false
       this.roles = []
+      this.currentEmployee = null
+      this.subordinates = []
+      this.subordinateEmails = []
       localStorage.removeItem('yrcs_user')
       localStorage.removeItem('yrcs_full_name')
     }

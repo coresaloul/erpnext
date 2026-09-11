@@ -57,6 +57,78 @@
       </div>
     </div>
 
+    <!-- User Authority & Access Scope Banner -->
+    <div 
+      class="p-4 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs transition-all"
+      :class="scopeDescriptor.badgeClass"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white shadow-2xs border border-black/5">
+          <ShieldCheck class="w-5 h-5" :class="scopeDescriptor.iconColor" />
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="font-bold text-xs text-slate-900">{{ scopeDescriptor.title }}</h3>
+            <span v-if="scopeDescriptor.isFull" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-emerald-800 border border-emerald-200 shadow-2xs">
+              صلاحية شاملة
+            </span>
+            <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-blue-800 border border-blue-200 shadow-2xs">
+              عرض مقيد بالهيكل
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-600 mt-0.5">{{ scopeDescriptor.subtitle }}</p>
+        </div>
+      </div>
+
+      <!-- Scope Filter Tabs (All / My Own / My Subordinates / Pending Action) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 shrink-0">
+        <button 
+          @click="logisticsStore.filterScope = 'all'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5"
+          :class="[logisticsStore.filterScope === 'all' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white/90 hover:bg-white text-slate-700 border border-slate-200']"
+        >
+          <span>الكل المتاح</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="[logisticsStore.filterScope === 'all' ? 'bg-white/20' : 'bg-slate-100']">
+            {{ logisticsStore.requisitions.length }}
+          </span>
+        </button>
+
+        <button 
+          @click="logisticsStore.filterScope = 'my_own'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5"
+          :class="[logisticsStore.filterScope === 'my_own' ? 'bg-blue-600 text-white shadow-xs' : 'bg-white/90 hover:bg-white text-slate-700 border border-slate-200']"
+        >
+          <span>طلباتي المباشرة</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="[logisticsStore.filterScope === 'my_own' ? 'bg-white/20' : 'bg-slate-100']">
+            {{ logisticsStore.myOwnCount }}
+          </span>
+        </button>
+
+        <button 
+          v-if="authStore.subordinates.length > 0 || scopeDescriptor.isFull"
+          @click="logisticsStore.filterScope = 'subordinates'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5"
+          :class="[logisticsStore.filterScope === 'subordinates' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white/90 hover:bg-white text-slate-700 border border-slate-200']"
+        >
+          <span>طلبات موظفي إدارتي</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="[logisticsStore.filterScope === 'subordinates' ? 'bg-white/20' : 'bg-slate-100']">
+            {{ logisticsStore.subordinatesCount }}
+          </span>
+        </button>
+
+        <button 
+          @click="logisticsStore.filterScope = 'pending_my_action'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5"
+          :class="[logisticsStore.filterScope === 'pending_my_action' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white/90 hover:bg-white text-slate-700 border border-slate-200']"
+        >
+          <span>تنتظر اعتمادي</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="[logisticsStore.filterScope === 'pending_my_action' ? 'bg-white/20' : 'bg-slate-100']">
+            {{ logisticsStore.pendingMyActionCount }}
+          </span>
+        </button>
+      </div>
+    </div>
+
     <!-- KPI Metric Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <StatCard 
@@ -214,6 +286,14 @@
                 <span class="block text-[11px] font-normal text-slate-400 mt-0.5">
                   {{ req.material_request_type || 'Material Transfer' }}
                 </span>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <span 
+                    class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs"
+                    :class="getRelation(req).badgeClass"
+                  >
+                    {{ getRelation(req).label }}
+                  </span>
+                </div>
               </td>
 
               <!-- Workflow Stage Badge & Current Assignee -->
@@ -468,7 +548,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useLogisticsStore } from '@/stores/logistics'
+import { useAuthStore } from '@/stores/auth'
 import { getUserFullName, getWorkflowAssignee } from '@/utils/users'
+import { getUserScopeDescriptor, getRequisitionRelation } from '@/utils/permissions'
 import StatCard from '@/components/common/StatCard.vue'
 import Modal from '@/components/common/Modal.vue'
 import { 
@@ -488,10 +570,18 @@ import {
   ArrowRight,
   ArrowLeft,
   UserCheck,
-  Printer
+  Printer,
+  ShieldCheck
 } from 'lucide-vue-next'
 
 const logisticsStore = useLogisticsStore()
+const authStore = useAuthStore()
+
+const scopeDescriptor = computed(() => getUserScopeDescriptor(authStore))
+
+function getRelation(req) {
+  return getRequisitionRelation(req, authStore)
+}
 
 function getAssignee(req) {
   return getWorkflowAssignee(req)
@@ -500,7 +590,10 @@ function getAssignee(req) {
 const showInspector = ref(false)
 const activeTab = ref('items')
 
-onMounted(() => {
+onMounted(async () => {
+  if (authStore.user && (!authStore.roles || authStore.roles.length === 0)) {
+    await authStore.fetchProfile(authStore.user)
+  }
   loadData()
 })
 
