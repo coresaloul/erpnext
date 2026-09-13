@@ -5,7 +5,7 @@
   >
     <!-- Branding & Official Logo -->
     <div class="h-16 px-4 flex items-center justify-between border-b border-slate-100">
-      <router-link to="/" class="flex items-center gap-3 overflow-hidden">
+      <router-link :to="authStore.hasFullAccess ? '/' : '/logistics'" class="flex items-center gap-3 overflow-hidden">
         <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-red-100 shadow-sm p-0.5 overflow-hidden">
           <img src="@/assets/yrcs-logo.png" alt="YRCS" class="w-full h-full object-contain" />
         </div>
@@ -75,7 +75,8 @@
         <span v-if="!uiStore.isSidebarCollapsed" class="truncate">{{ item.label }}</span>
       </router-link>
 
-      <div class="pt-4 mt-4 border-t border-slate-100">
+      <!-- External ERPNext Desk Link (Logistics Team / CEO only) -->
+      <div v-if="authStore.hasFullAccess" class="pt-4 mt-4 border-t border-slate-100">
         <p v-if="!uiStore.isSidebarCollapsed" class="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
           الأنظمة الخارجية
         </p>
@@ -166,13 +167,9 @@ const navItems = computed(() => {
       { label: 'أرصدة المخزون الحية', to: '/balances', icon: Layers },
       { label: 'طلبات الصرف والتحويل', to: '/requests', icon: Send },
     ]
-  } else {
-    return [
-      { label: 'دليل الأصناف لطلب المواد', to: '/items', icon: Package },
-      { label: 'المخازن ومراكز التوزيع', to: '/warehouses', icon: Warehouse },
-      { label: 'طلبات الصرف الخاصة بي', to: '/requests', icon: Send },
-    ]
   }
+  // For other employees, only ONE tab exists in sidebar: "طلباتي والطلبات اللوجستية"
+  return []
 })
 
 const userRoleBadge = computed(() => {

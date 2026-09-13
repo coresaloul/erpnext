@@ -26,7 +26,7 @@ const routes = [
         path: '',
         name: 'dashboard',
         component: DashboardView,
-        meta: { title: 'لوحة التحكم والمؤشرات | Operations Dashboard', subtitle: 'جمعية الهلال الأحمر اليمني - المركز الرئيسي' }
+        meta: { title: 'لوحة التحكم والمؤشرات | Operations Dashboard', subtitle: 'جمعية الهلال الأحمر اليمني - المركز الرئيسي', requiresFullAccess: true }
       },
       {
         path: 'logistics',
@@ -44,31 +44,34 @@ const routes = [
         path: 'items',
         name: 'items',
         component: ItemsView,
-        meta: { title: 'Stock Items Master', subtitle: 'Humanitarian supplies and items catalog' }
+        meta: { title: 'Stock Items Master', subtitle: 'Humanitarian supplies and items catalog', requiresFullAccess: true }
       },
       {
         path: 'warehouses',
         name: 'warehouses',
         component: WarehousesView,
-        meta: { title: 'Warehouses & Facilities', subtitle: 'Storage facilities and distribution centers' }
+        meta: { title: 'Warehouses & Facilities', subtitle: 'Storage facilities and distribution centers', requiresFullAccess: true }
       },
       {
         path: 'balances',
         name: 'balances',
         component: StockBalanceView,
-        meta: { title: 'Live Stock Balances', subtitle: 'Bin quantities and available units' }
+        meta: { title: 'Live Stock Balances', subtitle: 'Bin quantities and available units', requiresFullAccess: true }
       },
       {
         path: 'requests',
         name: 'requests',
         component: MaterialRequestsView,
-        meta: { title: 'Material Requests', subtitle: 'Supply transfers and purchase requisitions' }
+        meta: { title: 'Material Requests', subtitle: 'Supply transfers and purchase requisitions', requiresFullAccess: true }
       }
     ]
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    redirect: () => {
+      const authStore = useAuthStore()
+      return authStore.hasFullAccess ? '/' : '/logistics'
+    }
   }
 ]
 
@@ -79,13 +82,21 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+
   if (!to.meta.public && !authStore.isAuthenticated) {
-    next({ name: 'login' })
-  } else if (to.name === 'login' && authStore.isAuthenticated) {
-    next({ name: 'dashboard' })
-  } else {
-    next()
+    return next({ name: 'login' })
+  } 
+  
+  if (to.name === 'login' && authStore.isAuthenticated) {
+    return next(authStore.hasFullAccess ? { name: 'dashboard' } : { name: 'logistics' })
   }
+
+  // Non-logistics staff cannot access restricted screens; redirect straight to logistics
+  if (authStore.isAuthenticated && to.meta.requiresFullAccess && !authStore.hasFullAccess) {
+    return next({ name: 'logistics' })
+  }
+
+  next()
 })
 
 export default router

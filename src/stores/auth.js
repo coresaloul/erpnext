@@ -10,10 +10,10 @@ export const useAuthStore = defineStore('auth', {
     loading: false,
     error: null,
     company: 'Yemen Red Crescent Society',
-    roles: [],
-    currentEmployee: null,
-    subordinates: [],
-    subordinateEmails: [],
+    roles: JSON.parse(localStorage.getItem('yrcs_roles') || '[]'),
+    currentEmployee: JSON.parse(localStorage.getItem('yrcs_employee') || 'null'),
+    subordinates: JSON.parse(localStorage.getItem('yrcs_subordinates') || '[]'),
+    subordinateEmails: JSON.parse(localStorage.getItem('yrcs_sub_emails') || '[]'),
   }),
 
   getters: {
@@ -77,6 +77,7 @@ export const useAuthStore = defineStore('auth', {
           this.fullName = res.data.data.full_name || this.fullName
           localStorage.setItem('yrcs_full_name', this.fullName)
           this.roles = res.data.data.roles ? res.data.data.roles.map(r => r.role) : []
+          localStorage.setItem('yrcs_roles', JSON.stringify(this.roles))
         }
       } catch (e) {
         // non-critical
@@ -98,6 +99,10 @@ export const useAuthStore = defineStore('auth', {
           this.subordinates = []
           this.subordinateEmails = []
         }
+
+        localStorage.setItem('yrcs_employee', JSON.stringify(this.currentEmployee))
+        localStorage.setItem('yrcs_subordinates', JSON.stringify(this.subordinates))
+        localStorage.setItem('yrcs_sub_emails', JSON.stringify(this.subordinateEmails))
       } catch (err) {
         console.warn('Could not fetch employee hierarchy:', err)
       }
@@ -123,6 +128,10 @@ export const useAuthStore = defineStore('auth', {
       this.subordinateEmails = []
       localStorage.removeItem('yrcs_user')
       localStorage.removeItem('yrcs_full_name')
+      localStorage.removeItem('yrcs_roles')
+      localStorage.removeItem('yrcs_employee')
+      localStorage.removeItem('yrcs_subordinates')
+      localStorage.removeItem('yrcs_sub_emails')
     }
   }
 })
