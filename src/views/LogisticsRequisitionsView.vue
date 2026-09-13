@@ -508,7 +508,6 @@
                       <Clock class="w-3 h-3 text-blue-600 shrink-0" />
                       <span>{{ getModalStepDuration(idx) }}</span>
                     </span>
-                    <span class="text-[10px] text-slate-400">({{ getLogTimeAgo(log) }})</span>
                   </div>
                 </div>
 

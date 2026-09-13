@@ -240,21 +240,16 @@
             </div>
 
             <!-- Date & Time + Duration Metrics -->
-            <div class="flex flex-col sm:items-end text-left shrink-0 gap-1">
-              <div class="flex items-center gap-2 font-mono text-slate-600 text-xs">
-                <span>{{ log.action_datetime || (log.action_date + ' ' + log.action_time) }}</span>
-                <span 
-                  v-if="getStepDuration(idx)"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs"
-                  title="المدة المستغرقة في هذه المرحلة"
-                >
-                  <Clock class="w-3 h-3 text-blue-600 shrink-0" />
-                  <span>{{ getStepDuration(idx) }}</span>
-                </span>
-              </div>
-              <div class="text-[10px] text-slate-400 font-medium">
-                {{ getLogTimeAgo(log) }}
-              </div>
+            <div class="flex items-center gap-2 font-mono text-slate-600 text-xs text-left shrink-0">
+              <span>{{ log.action_datetime || (log.action_date + ' ' + log.action_time) }}</span>
+              <span 
+                v-if="getStepDuration(idx)"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs"
+                title="المدة المستغرقة في هذه المرحلة"
+              >
+                <Clock class="w-3 h-3 text-blue-600 shrink-0" />
+                <span>{{ getStepDuration(idx) }}</span>
+              </span>
             </div>
           </div>
         </div>
