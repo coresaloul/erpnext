@@ -239,9 +239,22 @@
               <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">{{ log.to_state }}</span>
             </div>
 
-            <!-- Date & Time -->
-            <div class="text-left font-mono text-slate-400 text-[11px] shrink-0">
-              {{ log.action_datetime || (log.action_date + ' ' + log.action_time) }}
+            <!-- Date & Time + Duration Metrics -->
+            <div class="flex flex-col sm:items-end text-left shrink-0 gap-1">
+              <div class="flex items-center gap-2 font-mono text-slate-600 text-xs">
+                <span>{{ log.action_datetime || (log.action_date + ' ' + log.action_time) }}</span>
+                <span 
+                  v-if="getStepDuration(idx)"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs"
+                  title="المدة المستغرقة في هذه المرحلة"
+                >
+                  <Clock class="w-3 h-3 text-blue-600 shrink-0" />
+                  <span>{{ getStepDuration(idx) }}</span>
+                </span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-medium">
+                {{ getLogTimeAgo(log) }}
+              </div>
             </div>
           </div>
         </div>
@@ -310,6 +323,7 @@ import { inventoryApi } from '@/api/inventory'
 import { useAuthStore } from '@/stores/auth'
 import { getUserFullName, getWorkflowAssignee } from '@/utils/users'
 import { canAccessRequisition } from '@/utils/permissions'
+import { formatStepDuration, formatTimeAgo } from '@/utils/duration'
 import { 
   ArrowLeft, 
   Printer, 
@@ -380,6 +394,22 @@ const totalCostAmount = computed(() => {
   if (!doc.value?.items) return 0
   return doc.value.items.reduce((sum, it) => sum + Number(it.custom_amount_in_pr_currency || it.amount || 0), 0)
 })
+
+function getStepDuration(idx) {
+  if (!doc.value?.custom_workflow_audit_log) return ''
+  const logs = doc.value.custom_workflow_audit_log
+  const current = logs[idx]
+  const prevDateStr = idx === 0 
+    ? doc.value.creation 
+    : (logs[idx - 1].action_datetime || (logs[idx - 1].action_date + ' ' + logs[idx - 1].action_time))
+  const currDateStr = current.action_datetime || (current.action_date + ' ' + current.action_time)
+  return formatStepDuration(currDateStr, prevDateStr)
+}
+
+function getLogTimeAgo(log) {
+  const dateStr = log.action_datetime || (log.action_date + ' ' + log.action_time)
+  return formatTimeAgo(dateStr)
+}
 
 const totalCostFormatted = computed(() => {
   return totalCostAmount.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })

@@ -496,9 +496,20 @@
 
               <!-- Content Card -->
               <div class="flex-1 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                   <div class="font-bold text-slate-900 text-sm">{{ log.user_full_name || log.employee_name || log.user }}</div>
-                  <span class="text-[11px] font-mono text-slate-400">{{ log.action_datetime || (log.action_date + ' ' + log.action_time) }}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-mono text-slate-500">{{ log.action_datetime || (log.action_date + ' ' + log.action_time) }}</span>
+                    <span 
+                      v-if="getModalStepDuration(idx)"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs"
+                      title="المدة المستغرقة في هذه المرحلة"
+                    >
+                      <Clock class="w-3 h-3 text-blue-600 shrink-0" />
+                      <span>{{ getModalStepDuration(idx) }}</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">({{ getLogTimeAgo(log) }})</span>
+                  </div>
                 </div>
 
                 <div class="mt-1 text-slate-500 flex items-center gap-2">
@@ -551,6 +562,7 @@ import { useLogisticsStore } from '@/stores/logistics'
 import { useAuthStore } from '@/stores/auth'
 import { getUserFullName, getWorkflowAssignee } from '@/utils/users'
 import { getUserScopeDescriptor, getRequisitionRelation } from '@/utils/permissions'
+import { formatStepDuration, formatTimeAgo } from '@/utils/duration'
 import StatCard from '@/components/common/StatCard.vue'
 import Modal from '@/components/common/Modal.vue'
 import { 
@@ -627,6 +639,22 @@ async function openInspector(name) {
 const currentDetails = computed(() => {
   return logisticsStore.selectedRequisition
 })
+
+function getModalStepDuration(idx) {
+  if (!currentDetails.value?.custom_workflow_audit_log) return ''
+  const logs = currentDetails.value.custom_workflow_audit_log
+  const current = logs[idx]
+  const prevDateStr = idx === 0 
+    ? currentDetails.value.creation 
+    : (logs[idx - 1].action_datetime || (logs[idx - 1].action_date + ' ' + logs[idx - 1].action_time))
+  const currDateStr = current.action_datetime || (current.action_date + ' ' + current.action_time)
+  return formatStepDuration(currDateStr, prevDateStr)
+}
+
+function getLogTimeAgo(log) {
+  const dateStr = log.action_datetime || (log.action_date + ' ' + log.action_time)
+  return formatTimeAgo(dateStr)
+}
 
 const currentDetailsOverdue = computed(() => {
   if (!currentDetails.value) return false
