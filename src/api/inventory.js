@@ -180,6 +180,42 @@ export const inventoryApi = {
     return apiClient.post('/api/resource/Material Request', requestData)
   },
 
+  // Masters for Logistics Requisition Form
+  getBranches() {
+    const fields = JSON.stringify(['name'])
+    return apiClient.get(`/api/resource/Branch?fields=${encodeURIComponent(fields)}&limit_page_length=50`)
+  },
+
+  getItemGroups() {
+    const fields = JSON.stringify(['name'])
+    return apiClient.get(`/api/resource/Item Group?fields=${encodeURIComponent(fields)}&limit_page_length=50`)
+  },
+
+  getSupplierGroups() {
+    const fields = JSON.stringify(['name'])
+    return apiClient.get(`/api/resource/Supplier Group?fields=${encodeURIComponent(fields)}&limit_page_length=50`)
+  },
+
+  getProjects() {
+    const fields = JSON.stringify(['name', 'project_name'])
+    return apiClient.get(`/api/resource/Project?fields=${encodeURIComponent(fields)}&limit_page_length=100`)
+  },
+
+  getDonors() {
+    const fields = JSON.stringify(['name'])
+    return apiClient.get(`/api/resource/Donor?fields=${encodeURIComponent(fields)}&limit_page_length=50`)
+  },
+
+  getCostCenters() {
+    const fields = JSON.stringify(['name'])
+    return apiClient.get(`/api/resource/Cost Center?fields=${encodeURIComponent(fields)}&limit_page_length=50`)
+  },
+
+  getCurrencies() {
+    const fields = JSON.stringify(['name'])
+    return apiClient.get(`/api/resource/Currency?fields=${encodeURIComponent(fields)}&limit_page_length=50`)
+  },
+
   // Stock Entries (Dispatches / Receipts)
   getStockEntries({ limit = 30 } = {}) {
     const params = {

@@ -20,6 +20,15 @@
 
       <!-- Action Controls -->
       <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Create New Requisition CTA -->
+        <router-link 
+          to="/logistics/new"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white rounded-xl text-xs font-bold shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 transition-all transform hover:-translate-y-0.5"
+        >
+          <Plus class="w-4 h-4" />
+          <span>إنشاء طلب لوجستي جديد</span>
+        </router-link>
+
         <!-- Device Notification Toggle Button -->
         <button 
           @click="toggleDeviceNotifications"
@@ -582,7 +591,8 @@ import {
   ArrowLeft,
   UserCheck,
   Printer,
-  ShieldCheck
+  ShieldCheck,
+  Plus
 } from 'lucide-vue-next'
 
 const logisticsStore = useLogisticsStore()
